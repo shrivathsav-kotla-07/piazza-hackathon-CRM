@@ -9,7 +9,9 @@ const UploadArea = ({
   onDrop, 
   onFileSelect, 
   onCancel, 
-  fileInputRef 
+  fileInputRef,
+  uploadedFileName,
+  processingProgress
 }) => {
   if (!isVisible) return null;
 
@@ -29,20 +31,31 @@ const UploadArea = ({
             <div className="flex justify-center">
               <FileText className="upload-icon" />
             </div>
-            <div>
-              <p className="upload-text">
-                Drop your PDF or image files here
-              </p>
-              <p className="upload-subtext">
-                or click to browse
-              </p>
-            </div>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="btn btn-primary"
-            >
-              Choose Files
-            </button>
+            {uploadedFileName ? (
+              <div className="text-center">
+                <p className="upload-text font-semibold">{uploadedFileName}</p>
+                {processingProgress === 1 && <p className="upload-subtext">Uploading...</p>}
+                {processingProgress === 2 && <p className="upload-subtext">Processing document...</p>}
+                {processingProgress === 3 && <p className="upload-subtext text-green-600">Extraction complete!</p>}
+              </div>
+            ) : (
+              <div>
+                <p className="upload-text">
+                  Drop your PDF or image files here
+                </p>
+                <p className="upload-subtext">
+                  or click to browse
+                </p>
+              </div>
+            )}
+            {!uploadedFileName && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="btn btn-primary"
+              >
+                Choose Files
+              </button>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -64,4 +77,4 @@ const UploadArea = ({
   );
 };
 
-export default UploadArea; 
+export default UploadArea;

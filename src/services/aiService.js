@@ -61,4 +61,28 @@ export class AIService {
     
     return 'general_help';
   }
-} 
+
+  // New method to extract data from document using FastAPI backend
+  static async extractDataFromDocument(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('http://localhost:8000/extract', { // Assuming FastAPI runs on port 8000
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to extract data from document.');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error extracting data from document:', error);
+      throw error;
+    }
+  }
+}

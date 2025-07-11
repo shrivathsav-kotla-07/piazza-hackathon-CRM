@@ -32,6 +32,8 @@ const MiniCRM = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [toast, setToast] = useState(null);
+  const [uploadedFileName, setUploadedFileName] = useState(null);
+  const [processingProgress, setProcessingProgress] = useState(0); // 0: idle, 1: uploading, 2: processing, 3: complete/error
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -131,9 +133,14 @@ const MiniCRM = () => {
 
   // Form handlers
   const handleFormSubmit = async () => {
-    const newLead = await addLead(formData); // formData.phone already contains the full number
+    // Determine source based on whether it came from an upload or manual entry
+    const source = uploadedFileName ? 'Document' : 'Manual'; 
+    const newLead = await addLead({ ...formData, source: source });
     if (newLead) {
       setFormData({ name: '', email: '', phone: '' });
+      setShowForm(false); // Hide the form after saving
+      setUploadedFileName(null); // Clear uploaded file name after saving
+      setProcessingProgress(0); // Reset progress
     }
   };
 
@@ -151,15 +158,38 @@ const MiniCRM = () => {
     processFiles(files);
   };
 
-  const processFiles = (files) => {
-    const processedLeads = FileService.processFiles(files);
-    
-    processedLeads.forEach(leadData => {
-      addLead(leadData);
-    });
-    
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  const processFiles = async (files) => {
+    if (files.length === 0) return;
+
+    const file = files[0]; // Assuming only one file is processed at a time for simplicity
+    setUploadedFileName(file.name);
+    setProcessingProgress(1); // Indicate uploading
+
+    try {
+      // Simulate upload progress (if actual upload was involved)
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      setProcessingProgress(2); // Indicate processing
+
+      const extractedData = await AIService.extractDataFromDocument(file);
+      if (extractedData) {
+        setFormData(extractedData); // Fill the form with extracted data
+        setShowForm(true); // Show the form for editing
+        setShowUpload(false); // Hide the upload area
+        setProcessingProgress(3); // Indicate complete
+        showToast('Data extracted! Please review and save.', 'success');
+      } else {
+        setProcessingProgress(0); // Reset on no data
+        showToast('No data extracted from document.', 'info');
+      }
+    } catch (error) {
+      setProcessingProgress(0); // Reset on error
+      showToast(`Error processing file ${file.name}: ${error.message}`, 'error');
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      // Reset file name after a short delay or when form is hidden
+      setTimeout(() => setUploadedFileName(null), 3000); 
     }
   };
 
@@ -267,6 +297,8 @@ const MiniCRM = () => {
               onFileSelect={handleFileSelect}
               onCancel={() => setShowUpload(false)}
               fileInputRef={fileInputRef}
+              uploadedFileName={uploadedFileName}
+              processingProgress={processingProgress}
             />
 
             {/* Lead Dashboard */}

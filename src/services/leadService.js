@@ -26,8 +26,15 @@ export class LeadService {
   // Create a new lead
   static async createLead(leadData) {
     try {
-      const response = await axios.post(API_URL, leadData);
-      return response.data;
+      // If the source is 'document/image', use the new FastAPI endpoint
+      if (leadData.source === 'document/image') {
+        const response = await axios.post('http://localhost:8000/save_lead', leadData);
+        return response.data;
+      } else {
+        // Otherwise, use the existing API_URL
+        const response = await axios.post(API_URL, leadData);
+        return response.data;
+      }
     } catch (error) {
       console.error('Error creating lead:', error);
       throw error;

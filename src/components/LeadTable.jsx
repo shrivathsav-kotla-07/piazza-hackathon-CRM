@@ -89,7 +89,9 @@ const LeadTable = ({
                   <span className={`badge ${
                     lead.source === 'Manual' 
                       ? 'badge-purple' 
-                      : 'badge-orange'
+                      : lead.source === 'Document'
+                      ? 'badge-orange' // New badge style for 'Document' source
+                      : 'badge-gray' // Default fallback for other sources
                   }`}>
                     {lead.source}
                   </span>

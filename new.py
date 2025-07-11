@@ -56,7 +56,7 @@ async def extract_data(file: UploadFile = File(...)):
     prompt_message = (
         "Extract the name, email, and phone number (including country code) "
         "from this image. Provide the output as a JSON object with keys "
-        "'name', 'email', and 'phone'. For example: "
+        "'name', 'email', and 'phone' (with country code). For example: "
         '{"name": "John Doe", "email": "john.doe@example.com", "phone": "+1234567890"}'
     )
 

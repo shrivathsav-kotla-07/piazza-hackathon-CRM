@@ -133,14 +133,10 @@ const MiniCRM = () => {
 
   // Form handlers
   const handleFormSubmit = async () => {
-    // Determine source based on whether it came from an upload or manual entry
-    const source = uploadedFileName ? 'Document' : 'Manual'; 
-    const newLead = await addLead({ ...formData, source: source });
+    const newLead = await addLead({ ...formData, source: 'document/image' }); // Set source to document/image
     if (newLead) {
       setFormData({ name: '', email: '', phone: '' });
       setShowForm(false); // Hide the form after saving
-      setUploadedFileName(null); // Clear uploaded file name after saving
-      setProcessingProgress(0); // Reset progress
     }
   };
 

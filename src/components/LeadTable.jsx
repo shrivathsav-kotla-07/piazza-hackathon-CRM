@@ -7,11 +7,12 @@ const LeadTable = ({
   onFilterChange,
   sort,
   onSortChange,
-  onChat,
+  onIndividualChat, // Renamed from onChat
   onUpdateStatus,
   onDelete,
   pagination,
   onPageChange,
+  onOpenChat, // New prop for the header chat button
 }) => {
   const handleSort = (field) => {
     const order = sort.field === field && sort.order === 'asc' ? 'desc' : 'asc';
@@ -34,6 +35,14 @@ const LeadTable = ({
               <option value="New">New</option>
               <option value="Contacted">Contacted</option>
             </select>
+            <button
+              onClick={onOpenChat}
+              className="btn btn-sm btn-info ml-2"
+              title="Open Chat"
+            >
+              <MessageSquare size={16} />
+              <span>Chat</span>
+            </button>
           </div>
         </div>
       </div>
@@ -100,7 +109,7 @@ const LeadTable = ({
                 <td>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => onChat(lead)}
+                      onClick={() => onIndividualChat(lead)} // Use the renamed prop
                       className="btn btn-icon text-blue-600 hover:text-blue-900"
                       title="Interact"
                     >

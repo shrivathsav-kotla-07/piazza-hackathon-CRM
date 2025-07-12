@@ -10,14 +10,14 @@ const ChatModal = ({
   onSubmit, 
   onClose 
 }) => {
-  if (!isVisible || !selectedLead) return null;
+  if (!isVisible) return null; // Only check for isVisible
 
   return (
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
           <h3 className="modal-title">
-            Chat with AI about {selectedLead.name}
+            {selectedLead ? `Chat with AI about ${selectedLead.name}` : 'General Chat with AI'}
           </h3>
           <button
             onClick={onClose}
@@ -67,4 +67,4 @@ const ChatModal = ({
   );
 };
 
-export default ChatModal; 
+export default ChatModal;

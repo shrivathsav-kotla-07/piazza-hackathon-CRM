@@ -190,7 +190,7 @@ const MiniCRM = () => {
   };
 
   // Chat handlers
-  const handleChatSubmit = () => {
+  const handleChatSubmit = async () => { // Made async to await API call
     if (!inputMessage.trim()) return;
 
     const userMessage = { 
@@ -198,18 +198,44 @@ const MiniCRM = () => {
       content: inputMessage,
       timestamp: new Date().toISOString()
     };
-    
-    const aiResponse = AIService.processMessage(inputMessage, selectedLead);
-    
-    setChatMessages(prev => [...prev, userMessage, aiResponse]);
+    setChatMessages(prev => [...prev, userMessage]);
     setInputMessage('');
+
+    try {
+      const response = await AIService.askChat(inputMessage); // Call the new API endpoint
+      const aiResponse = {
+        type: 'ai',
+        content: typeof response.result === 'string' ? response.result : JSON.stringify(response.result), // Ensure content is string
+        timestamp: new Date().toISOString()
+      };
+      setChatMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error in handleChatSubmit:', error); // Log the actual error
+      showToast('Error getting chat response', 'error');
+      const errorResponse = {
+        type: 'ai',
+        content: `Error: Could not get a response from the AI. Details: ${error.message || error}`,
+        timestamp: new Date().toISOString()
+      };
+      setChatMessages(prev => [...prev, errorResponse]);
+    }
   };
 
-  const openChatModal = (lead) => {
+  const handleIndividualChat = (lead) => { // Renamed from openChatModal
     setSelectedLead(lead);
     setChatMessages([{
       type: 'ai',
       content: AIService.getInitialGreeting(lead),
+      timestamp: new Date().toISOString()
+    }]);
+    setShowModal(true);
+  };
+
+  const handleOpenChat = () => { // New function for the header chat button
+    setSelectedLead(null); // No specific lead selected for general chat
+    setChatMessages([{
+      type: 'ai',
+      content: "Hello! How can I help you with your leads today?",
       timestamp: new Date().toISOString()
     }]);
     setShowModal(true);
@@ -307,7 +333,8 @@ const MiniCRM = () => {
               }}
               sort={sort}
               onSortChange={setSort}
-              onChat={openChatModal}
+              onIndividualChat={handleIndividualChat} // Use the renamed prop
+              onOpenChat={handleOpenChat} // Pass the new function
               onUpdateStatus={updateLeadStatus}
               onDelete={deleteLead}
               pagination={pagination}
